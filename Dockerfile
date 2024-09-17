@@ -10,5 +10,8 @@ COPY target/vehiclemanager-1.0.1.jar /app/vehiclemanager.jar
 # Expose the port that the application will run on
 EXPOSE 8080
 
-# Run the application
-CMD ["java", "-jar", "vehiclemanager.jar"]
+# Set JAVA_OPTS environment variable
+ENV JAVA_OPTS="-Xms200m -Xmx2g -XX:MetaspaceSize=192M -XX:MaxMetaspaceSize=512m"
+
+# Run the application with JAVA_OPTS
+CMD ["sh", "-c", "java ${JAVA_OPTS} -jar /app/vehiclemanager.jar"]

@@ -1,6 +1,31 @@
 #version: '3.9'
 
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: jarmuvek
+    environment:
+      POSTGRES_DB: jarmuvek_db
+      POSTGRES_USER: jarmuvek_user
+      POSTGRES_PASSWORD: Almfa_123
+      POSTGRES_CONFIG_FILE: /etc/postgresql/postgresql.conf
+      JAVA_OPTS: "Xms200m -Xmx2g -XX:MetaspaceSize=192M -XX:MaxMetaspaceSize=512m"
+      command: sh -c ["java \$JAVA_OPTS -jar /app/vehiclemanager.jar"]
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d/
+      - ./db-init/postgresql.conf:/etc/postgresql/postgresql.conf
+    deploy:
+      resources:
+        reservations:
+          cpus: '2'
+          memory: 4g
+        limits:
+          cpus: '2'
+          memory: '4g'
+
   app:
     image: openjdk:17-jdk-alpine
     container_name: vehiclemanager
@@ -30,29 +55,5 @@ services:
           memory: '4g'
     depends_on:
       - db
-
-  db:
-    image: postgres:15-alpine
-    container_name: jarmuvek
-    environment:
-      POSTGRES_DB: jarmuvek_db
-      POSTGRES_USER: jarmuvek_user
-      POSTGRES_PASSWORD: Almfa_123
-      POSTGRES_CONFIG_FILE: /etc/postgresql/postgresql.conf
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./db-init:/docker-entrypoint-initdb.d/
-      - ./db-init/postgresql.conf:/etc/postgresql/postgresql.conf
-    deploy:
-      resources:
-        reservations:
-          cpus: '2'
-          memory: 4g
-        limits:
-          cpus: '2'
-          memory: '4g'
-
 volumes:
   postgres_data:
