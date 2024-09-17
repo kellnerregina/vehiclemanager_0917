@@ -1,0 +1,58 @@
+#version: '3.9'
+
+services:
+  app:
+    image: openjdk:17-jdk-alpine
+    container_name: vehiclemanager
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/jarmuvek_db
+      SPRING_DATASOURCE_USERNAME: jarmuvek_user
+      SPRING_DATASOURCE_PASSWORD: Almfa_123
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.PostgreSQLDialect
+    deploy:
+      #replicas: 3
+      #update_config:
+       # parallelism: 1
+      #restart_policy:
+       #   condition: on-failure
+      resources:
+        reservations:
+          cpus: '2'
+          memory: 4g
+        limits:
+          cpus: '2'
+          memory: '4g'
+    depends_on:
+      - db
+
+  db:
+    image: postgres:15-alpine
+    container_name: jarmuvek
+    environment:
+      POSTGRES_DB: jarmuvek_db
+      POSTGRES_USER: jarmuvek_user
+      POSTGRES_PASSWORD: Almfa_123
+      POSTGRES_CONFIG_FILE: /etc/postgresql/postgresql.conf
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d/
+      - ./db-init/postgresql.conf:/etc/postgresql/postgresql.conf
+    deploy:
+      resources:
+        reservations:
+          cpus: '2'
+          memory: 4g
+        limits:
+          cpus: '2'
+          memory: '4g'
+
+volumes:
+  postgres_data:
