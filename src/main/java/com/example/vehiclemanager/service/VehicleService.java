@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.cache.annotation.Cacheable;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -60,5 +60,12 @@ public class VehicleService {
     public List<VehicleDTO> searchVehiclesByKeyword(String q) {
         List<Vehicle> vehicles = vehicleRepository.searchByKeyword(q);
         return vehicles.stream().map(vehicleMapper::toDTO).collect(Collectors.toList());
+    }
+
+    // Új metódus a cache előmelegítésére
+    @Cacheable("vehiclesCache")
+    public List<VehicleDTO> loadInitialDataToCache() {
+        List<Vehicle> vehicles = vehicleRepository.findAll(); // Az összes jármű lekérdezése az adatbázisból
+        return vehicles.stream().map(vehicleMapper::toDTO).collect(Collectors.toList()); // Adatok cache-be töltése
     }
 }
